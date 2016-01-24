@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:spring="http://www.springframework.org/schema/beans"
+      xmlns:vm="http://www.mulesoft.org/schema/mule/vm"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:context="http://www.springframework.org/schema/context"
+      xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+                                http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
+                                http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+                                http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+
+    <!--<http:listener-config name="HTTP_Listener_Configuration" host="localhost" port="8085"/>-->
+    <!--<http:request-config name="HTTP_Request_Configuration" host="example.com" port="8085"/>-->
+
+    <!--Lets use 3 threads of execution-->
+    <vm:connector name="vmConnector">
+        <receiver-threading-profile doThreading="true" maxThreadsActive="2" poolExhaustedAction="ABORT"/>
+        <dispatcher-threading-profile doThreading="true" maxThreadsActive="2" poolExhaustedAction="ABORT"/>
+    </vm:connector>
+
+    <spring:beans>
+        <context:component-scan base-package="com.yuranos"/>
+    </spring:beans>
+
+    <!--<flow name="nio-flow">-->
+    <!--<vm:inbound-endpoint path="nio-flow" connector-ref="vmConnector"-->
+    <!--exchange-pattern="request-response">-->
+    <!--</vm:inbound-endpoint>-->
+    <!--<scatter-gather>-->
+    <!--<processor-chain>-->
+    <!--<flow-ref name="nio-subflow"/>-->
+    <!--</processor-chain>-->
+    <!--<processor-chain>-->
+    <!--<flow-ref name="nio-subflow"/>-->
+    <!--</processor-chain>-->
+    <!--<processor-chain>-->
+    <!--<flow-ref name="nio-subflow"/>-->
+    <!--</processor-chain>-->
+    <!--<processor-chain>-->
+    <!--<flow-ref name="nio-subflow"/>-->
+    <!--</processor-chain>-->
+    <!--<processor-chain>-->
+    <!--<flow-ref name="nio-subflow"/>-->
+    <!--</processor-chain>-->
+    <!--</scatter-gather>-->
+    <!--&lt;!&ndash; processing &ndash;&gt;-->
+    <!--<component>-->
+    <!--<spring-object bean="allProcessor"/>-->
+    <!--</component>-->
+    <!--</flow>-->
+
+
+    <!--<flow name="nio-subflow">-->
+    <!--<http:request config-ref="HTTP_Request_Configuration" path="/" method="GET">-->
+    <!--<http:success-status-code-validator values="200, 201"/>-->
+    <!--</http:request>-->
+    <!--</flow>-->
+
+    <flow name="scatter-gather-flow">
+        <vm:inbound-endpoint path="mule-3.7-endpoint" connector-ref="vmConnector"
+                             exchange-pattern="request-response">
+        </vm:inbound-endpoint>
+
+        <logger message="Starting scatter-gather flow" level="DEBUG"/>
+        <all>
+            <processor-chain>
+                <flow-ref name="io-subflow"/>
+            </processor-chain>
+            <processor-chain>
+                <flow-ref name="io-subflow"/>
+            </processor-chain>
+            <processor-chain>
+                <flow-ref name="io-subflow"/>
+            </processor-chain>
+        </all>
+        <!-- processing -->
+        <component>
+            <spring-object bean="allProcessor"/>
+        </component>
+    </flow>
+
+    <flow name="io-subflow">
+        <http:outbound-endpoint name="io-caller"
+                                host="localhost"
+                                port="8085"
+                                method="POST"
+                                encoding="UTF-8"/>
+    </flow>
+
+    <!--<non-blocking-processing-strategy name="nio-ps"/>-->
+
+</mule>

@@ -1,0 +1,16 @@
+.jar
+.class
+.log
+.project
+.settings
+.classpath
+*.csv
+*.pdf
+*.log
+*.log.*
+.idea
+*.iml
+.metadata
+.mule
+target
+**/bin/*
