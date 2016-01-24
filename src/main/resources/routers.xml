@@ -63,6 +63,29 @@
         </vm:inbound-endpoint>
 
         <logger message="Starting scatter-gather flow" level="DEBUG"/>
+        <scatter-gather>
+            <processor-chain>
+                <flow-ref name="io-subflow"/>
+            </processor-chain>
+            <processor-chain>
+                <flow-ref name="io-subflow"/>
+            </processor-chain>
+            <processor-chain>
+                <flow-ref name="io-subflow"/>
+            </processor-chain>
+        </scatter-gather>
+        <!-- processing -->
+        <component>
+            <spring-object bean="allProcessor"/>
+        </component>
+    </flow>
+
+    <flow name="all-flow">
+        <vm:inbound-endpoint path="mule-3.4-endpoint" connector-ref="vmConnector"
+                             exchange-pattern="request-response">
+        </vm:inbound-endpoint>
+
+        <logger message="Starting all flow" level="DEBUG"/>
         <all>
             <processor-chain>
                 <flow-ref name="io-subflow"/>
@@ -83,9 +106,14 @@
     <flow name="io-subflow">
         <http:outbound-endpoint name="io-caller"
                                 host="localhost"
+                                path="/test"
                                 port="8085"
                                 method="POST"
-                                encoding="UTF-8"/>
+                                encoding="UTF-8">
+            <response>
+                <object-to-string-transformer />
+            </response>
+        </http:outbound-endpoint>
     </flow>
 
     <!--<non-blocking-processing-strategy name="nio-ps"/>-->

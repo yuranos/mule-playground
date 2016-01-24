@@ -14,10 +14,8 @@ public class AllProcessor implements Callable {
 
     @Override
     public Object onCall(MuleEventContext muleEventContext) throws Exception {
-        if (muleEventContext.getMessage() instanceof List) {
-            for(Object element : (List) muleEventContext.getMessage()) {
-                System.out.println(element);
-            }
+        if (muleEventContext.getMessage().getPayload() instanceof List) {
+            ((List) muleEventContext.getMessage().getPayload()).forEach(System.out::println);
             return muleEventContext.getMessage();
         }
         throw new RuntimeException();

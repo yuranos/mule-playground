@@ -1,11 +1,15 @@
 package com.yuranos;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import org.mule.api.MuleException;
 import org.mule.api.lifecycle.Startable;
 import org.mule.api.lifecycle.Stoppable;
 import org.springframework.stereotype.Component;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 
 /**
@@ -23,15 +27,16 @@ public class WireMockInitialiser implements Startable, Stoppable {
     @Override
     public void start() throws MuleException {
         wireMockServer = new WireMockServer(wireMockConfig().port(wiremockPort)); //No-args constructor will start on port 8080, no HTTPS
-//        stubFor(post(urlMatching(".*"))
-//                .willReturn(aResponse().withStatus(200).withFixedDelay(2000).withBody("I'm your response from Wiremock")));
+        wireMockServer.stubFor(WireMock.post(urlMatching("/test"))
+                .willReturn(aResponse().withFixedDelay(2000).withStatus(201).withBody("I'm your response from POST Wiremock")));
+        wireMockServer.stubFor(get(urlMatching("/test"))
+                .willReturn(aResponse().withStatus(200).withBody("I'm your response from GET Wiremock")));
         wireMockServer.start();
+        System.out.println("Wiremock has just started");
     }
 
     @Override
     public void stop() throws MuleException {
         wireMockServer.stop();
     }
-
-
 }

@@ -17,7 +17,8 @@ import java.io.IOException;
 @ContextConfiguration(locations = {"classpath:routers.xml"})
 public class RoutersTest {
 
-    public static final String SCATTERGATHERENDPOINT = "mule-3.7-endpoint";
+    public static final String ALL_ENDPOINT = "vm://mule-3.4-endpoint";
+    public static final String SCATTER_GATHER_ENDPOINT = "vm://mule-3.7-endpoint";
 
     @Before
     public void setup() throws IOException, MuleException {
@@ -32,34 +33,38 @@ public class RoutersTest {
     @Test
     public void testAllRouter() {
         long start = System.nanoTime();
-
         try {
-            TestConfiguration.sendMuleMessage(SCATTERGATHERENDPOINT, "hello", null);
+            TestConfiguration.sendMuleMessage(ALL_ENDPOINT, "message", null);
         } catch (MuleException e) {
             e.printStackTrace();
         }
         long end = System.nanoTime();
 
-        System.out.println(start - end);
-
+        System.out.println(end - start);
     }
 
     @Test
     public void testScatterGatherRouter() {
         long start = System.nanoTime();
+        try {
+            TestConfiguration.sendMuleMessage(SCATTER_GATHER_ENDPOINT, "message", null);
+        } catch (MuleException e) {
+            e.printStackTrace();
+        }
         long end = System.nanoTime();
 
-        System.out.println(start - end);
-
+        System.out.println(end - start);
     }
 
-    @Test
-    public void testNIO() {
-        long start = System.nanoTime();
-        long end = System.nanoTime();
 
-        System.out.println(start - end);
-
-    }
+//
+//    @Test
+//    public void testNIO() {
+//        long start = System.nanoTime();
+//        long end = System.nanoTime();
+//
+//        System.out.println(start - end);
+//
+//    }
 
 }
